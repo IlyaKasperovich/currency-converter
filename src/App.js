@@ -7,13 +7,15 @@ class App extends Component {
       bynInput: "",
 
       usdInput: "",
-      usdCur: 0,
+      usdCur: "",
 
       eurInput: "",
-      eurCur: 0,
+      eurCur: "",
 
       rubInput: "",
-      rubCur: 0
+      rubCur: "",
+
+      errorMessage: ""
     };
   }
 
@@ -27,37 +29,41 @@ class App extends Component {
       case "byn":
         bynValue = value;
         this.setState({
-          bynInput: value + "",
-          usdInput: bynValue / this.state.usdCur + "",
-          eurInput: bynValue / this.state.eurCur + "",
-          rubInput: bynValue / this.state.rubCur + ""
+          bynInput: value,
+          usdInput: Math.round((bynValue / this.state.usdCur) * 100) / 100,
+          eurInput: Math.round((bynValue / this.state.eurCur) * 100) / 100,
+          rubInput: Math.round((bynValue / this.state.rubCur) * 100) / 100,
+          errorMessage: ""
         });
         break;
       case "usd":
         bynValue = value * this.state.usdCur;
         this.setState({
-          bynInput: bynValue + "",
-          usdInput: value + "",
-          eurInput: bynValue / this.state.eurCur + "",
-          rubInput: bynValue / this.state.rubCur + ""
+          bynInput: Math.round(bynValue * 100) / 100,
+          usdInput: value,
+          eurInput: Math.round((bynValue / this.state.eurCur) * 100) / 100,
+          rubInput: Math.round((bynValue / this.state.rubCur) * 100) / 100,
+          errorMessage: ""
         });
         break;
       case "eur":
         bynValue = value * this.state.eurCur;
         this.setState({
-          bynInput: bynValue + "",
-          usdInput: bynValue / this.state.usdCur + "",
-          eurInput: value + "",
-          rubInput: bynValue / this.state.rubCur + ""
+          bynInput: Math.round(bynValue * 100) / 100,
+          usdInput: Math.round((bynValue / this.state.usdCur) * 100) / 100,
+          eurInput: value,
+          rubInput: Math.round((bynValue / this.state.rubCur) * 100) / 100,
+          errorMessage: ""
         });
         break;
       case "rub":
         bynValue = value * this.state.rubCur;
         this.setState({
-          bynInput: bynValue + "",
-          usdInput: bynValue / this.state.usdCur + "",
-          eurInput: bynValue / this.state.eurCur + "",
-          rubInput: value + ""
+          bynInput: Math.round(bynValue * 100) / 100,
+          usdInput: Math.round((bynValue / this.state.usdCur) * 100) / 100,
+          eurInput: Math.round((bynValue / this.state.eurCur) * 100) / 100,
+          rubInput: value,
+          errorMessage: ""
         });
         break;
     }
@@ -67,7 +73,17 @@ class App extends Component {
     let currentTarget = event.target.className;
     let value = event.target.value;
 
-    this.tryConvert(currentTarget, +value);
+    if (isNaN(+value)) {
+      this.setState({
+        bynInput: "0",
+        usdInput: "0",
+        eurInput: "0",
+        rubInput: "0",
+        errorMessage: "Intered incorrect value"
+      });
+    } else {
+      this.tryConvert(currentTarget, +value);
+    }
   }
 
   fetchData() {
@@ -93,9 +109,10 @@ class App extends Component {
   }
 
   render() {
-    return (
-      <div>
-        <h1>Currency converter</h1>
+    let container;
+
+    if (this.state.usdCur) {
+      container = (
         <div>
           <input
             className="byn"
@@ -118,6 +135,16 @@ class App extends Component {
             onChange={this.handleChange.bind(this)}
           ></input>
         </div>
+      );
+    } else {
+      container = <div>Loading</div>;
+    }
+
+    return (
+      <div>
+        <h1>Currency converter</h1>
+        {container}
+        <div>{this.state.errorMessage}</div>
       </div>
     );
   }
