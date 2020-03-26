@@ -1,22 +1,20 @@
 import React, { Component } from "react";
+import Container from "./Components/InputContainer";
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       bynInput: "",
-
       usdInput: "",
-      usdCur: "",
-
       eurInput: "",
-      eurCur: "",
-
       rubInput: "",
-      rubCur: "",
-
-      errorMessage: ""
+      errorMessage: "",
+      isLoaded: false
     };
+    this.usdCur = "";
+    this.eurCur = "";
+    this.rubCur = "";
   }
 
   componentDidMount() {
@@ -24,44 +22,45 @@ class App extends Component {
   }
 
   tryConvert(cur, value) {
+    //сделано отдельно для каждой валюты для большей точности данных
     let bynValue;
     switch (cur) {
       case "byn":
         bynValue = value;
         this.setState({
           bynInput: value,
-          usdInput: Math.round((bynValue / this.state.usdCur) * 100) / 100,
-          eurInput: Math.round((bynValue / this.state.eurCur) * 100) / 100,
-          rubInput: Math.round((bynValue / this.state.rubCur) * 100) / 100,
+          usdInput: Math.round((bynValue / this.usdCur) * 100) / 100,
+          eurInput: Math.round((bynValue / this.eurCur) * 100) / 100,
+          rubInput: Math.round((bynValue / this.rubCur) * 100) / 100,
           errorMessage: ""
         });
         break;
       case "usd":
-        bynValue = value * this.state.usdCur;
+        bynValue = value * this.usdCur;
         this.setState({
           bynInput: Math.round(bynValue * 100) / 100,
           usdInput: value,
-          eurInput: Math.round((bynValue / this.state.eurCur) * 100) / 100,
-          rubInput: Math.round((bynValue / this.state.rubCur) * 100) / 100,
+          eurInput: Math.round((bynValue / this.eurCur) * 100) / 100,
+          rubInput: Math.round((bynValue / this.rubCur) * 100) / 100,
           errorMessage: ""
         });
         break;
       case "eur":
-        bynValue = value * this.state.eurCur;
+        bynValue = value * this.eurCur;
         this.setState({
           bynInput: Math.round(bynValue * 100) / 100,
-          usdInput: Math.round((bynValue / this.state.usdCur) * 100) / 100,
+          usdInput: Math.round((bynValue / this.usdCur) * 100) / 100,
           eurInput: value,
-          rubInput: Math.round((bynValue / this.state.rubCur) * 100) / 100,
+          rubInput: Math.round((bynValue / this.rubCur) * 100) / 100,
           errorMessage: ""
         });
         break;
       case "rub":
-        bynValue = value * this.state.rubCur;
+        bynValue = value * this.rubCur;
         this.setState({
           bynInput: Math.round(bynValue * 100) / 100,
-          usdInput: Math.round((bynValue / this.state.usdCur) * 100) / 100,
-          eurInput: Math.round((bynValue / this.state.eurCur) * 100) / 100,
+          usdInput: Math.round((bynValue / this.usdCur) * 100) / 100,
+          eurInput: Math.round((bynValue / this.eurCur) * 100) / 100,
           rubInput: value,
           errorMessage: ""
         });
@@ -75,10 +74,10 @@ class App extends Component {
 
     if (isNaN(+value)) {
       this.setState({
-        bynInput: "0",
-        usdInput: "0",
-        eurInput: "0",
-        rubInput: "0",
+        bynInput: "",
+        usdInput: "",
+        eurInput: "",
+        rubInput: "",
         errorMessage: "Intered incorrect value"
       });
     } else {
@@ -100,41 +99,27 @@ class App extends Component {
         usd = Math.round(curUsd * 100) / 100;
         eur = Math.round(curEur * 100) / 100;
         rub = Math.round(curRub * 100) / 100;
-        this.setState({
-          usdCur: +usd,
-          eurCur: +eur,
-          rubCur: +rub
-        });
+
+        this.usdCur = usd;
+        this.eurCur = eur;
+        this.rubCur = rub;
+
+        this.setState({ isLoaded: true });
       });
   }
 
   render() {
     let container;
 
-    if (this.state.usdCur) {
+    if (this.state.isLoaded) {
       container = (
-        <div>
-          <input
-            className="byn"
-            value={this.state.bynInput}
-            onChange={this.handleChange.bind(this)}
-          ></input>
-          <input
-            className="usd"
-            value={this.state.usdInput}
-            onChange={this.handleChange.bind(this)}
-          ></input>
-          <input
-            className="eur"
-            value={this.state.eurInput}
-            onChange={this.handleChange.bind(this)}
-          ></input>
-          <input
-            className="rub"
-            value={this.state.rubInput}
-            onChange={this.handleChange.bind(this)}
-          ></input>
-        </div>
+        <Container
+          bynInput={this.state.bynInput}
+          usdInput={this.state.usdInput}
+          eurInput={this.state.eurInput}
+          rubInput={this.state.rubInput}
+          func={this.handleChange.bind(this)}
+        />
       );
     } else {
       container = <div>Loading</div>;
