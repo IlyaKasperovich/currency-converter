@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Container from "./Components/InputContainer";
+import Rate from "./Components/Rate";
 
 class App extends Component {
   constructor(props) {
@@ -69,7 +70,7 @@ class App extends Component {
   }
 
   handleChange(event) {
-    let currentTarget = event.target.className;
+    let currentTarget = event.target.id;
     let value = event.target.value;
 
     if (isNaN(+value)) {
@@ -113,23 +114,26 @@ class App extends Component {
 
     if (this.state.isLoaded) {
       container = (
-        <Container
-          bynInput={this.state.bynInput}
-          usdInput={this.state.usdInput}
-          eurInput={this.state.eurInput}
-          rubInput={this.state.rubInput}
-          func={this.handleChange.bind(this)}
-        />
+        <div>
+          <Rate usd={this.usdCur} eur={this.eurCur} rub={this.rubCur} />
+          <Container
+            bynInput={this.state.bynInput}
+            usdInput={this.state.usdInput}
+            eurInput={this.state.eurInput}
+            rubInput={this.state.rubInput}
+            func={this.handleChange.bind(this)}
+          />
+        </div>
       );
     } else {
-      container = <div>Loading</div>;
+      container = <div className="loading">Loading...</div>;
     }
 
     return (
       <div>
         <h1>Currency converter</h1>
         {container}
-        <div>{this.state.errorMessage}</div>
+        <div className="error-message">{this.state.errorMessage}</div>
       </div>
     );
   }
